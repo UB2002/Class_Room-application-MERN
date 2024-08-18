@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, CssBaseline, Typography, Button, TextField } from '@mui/material';
@@ -13,7 +15,6 @@ const Login = () => {
         try {
             const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { email, password });
             const { role } = JSON.parse(atob(response.data.token.split('.')[1]));
-            console.log(role);
             localStorage.setItem('role', role);
             localStorage.setItem('token', response.data.token);
             setError(null);

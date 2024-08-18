@@ -1,44 +1,46 @@
 
-
-import React from 'react';
-import { Container, CssBaseline, Typography, Paper, Button } from '@mui/material';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-    const token = localStorage.getItem('token');
     const role = localStorage.getItem('role');
-    const navigate = useNavigate(); // useNavigate instead of useHistory
+    const navigate = useNavigate();
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
+    useEffect(() => {
+        if (role === 'Principal') {
+            navigate('/PrincipalDashboard');
+        }
+    }, [role, navigate]);
 
-        navigate('/login'); // Redirect to login after logout
-    };
+    if (role === 'Teacher') {
+        return <h1>Teacher Dashboard</h1>;
+    }
 
-    return (
-        <Container component="main" maxWidth="sm">
-            <CssBaseline />
-            <Typography variant="h5" align="center">Dashboard</Typography>
-            <Typography variant="h5" align="center">role : {role} </Typography>
-            <Paper elevation={3} style={{ padding: '16px', marginTop: '16px' }}>
-                <Typography variant="h6">Welcome!</Typography>
-                <Typography variant="body1">Your token is:</Typography>
-                <Typography variant="body2" style={{ wordBreak: 'break-word' }}>
-                    {token}
-                </Typography>
-            </Paper>
-            <Button
-                variant="contained"
-                color="secondary"
-                style={{ marginTop: '16px' }}
-                onClick={handleLogout}
-                fullWidth
-            >
-                Logout
-            </Button>
-        </Container>
-    );
+    return <div>No access</div>;
 };
 
 export default Dashboard;
+
+
+/*
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const Dashboard = () => {
+    const role = localStorage.getItem('role');
+    const navigate = useNavigate();
+
+    if (role === 'Principal') {
+        navigate('/PrincipalDashboard');
+        return null; // Prevent rendering while redirecting
+    }
+
+    if (role === 'Teacher') {
+        return <h1>Teacher Dashboard</h1>;
+    }
+
+    return <div>No access</div>;
+};
+
+export default Dashboard;
+*/
