@@ -24,19 +24,33 @@ router.get('/', (req, res) => {
 
 
 // Login
+
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    console.log(user)
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-        return res.status(401).send('Invalid credentials');
-    }
-     
-   // res.send('Logged in ')
 
-    const token = jwt.sign({ userId: user._id, role: user.role }, secret, { expiresIn: '1h' });
-    res.json({ token });
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+        console.log(user);
+
+        if (!user || !(await bcrypt.compare(password, user.password))) {
+            return res.status(401).send('Invalid credentials');
+        }
+
+        if (user.role !== 'Principal' && user.role !== 'Teacher') {
+            return res.status(403).send('Access forbidden: Only Principal or Teacher roles are allowed.');
+        }
+
+        const token = jwt.sign({ userId: user._id, role: user.role }, secret, { expiresIn: '1h' });
+        res.json({ token });
+
+    } catch (err) {
+        // Handle any errors that occur
+        console.error('Error during login:', err);
+        res.status(500).send('Internal server error');
+    }
 });
+
 
 // Create user (Teacher/Student) - Only Principal can do this
 router.post('/signup', authenticateJWT, async (req, res) => {
