@@ -1,3 +1,39 @@
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+function Dashboard() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/');
+    };
+
+    return (
+        <div>
+            <h2>Dashboard</h2>
+            <p>Your token:</p>
+            <textarea readOnly value={token} rows="5" cols="50" />
+            <p>Your role: {role}</p>
+            {/* Show different buttons based on role */}
+            {role === 'principal' && (
+                <button onClick={() => navigate('/principal-dashboard')}>Go to Principal Dashboard</button>
+            )}
+            {role === 'teacher' && (
+                <button onClick={() => navigate('/teacher-dashboard')}>Go to Teacher Dashboard</button>
+            )}
+            <button onClick={handleLogout}>Logout</button>
+        </div>
+    );
+}
+
+export default Dashboard;
+
+
+/*
 import React from 'react';
 import { Container, CssBaseline, Typography, Paper, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -36,3 +72,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+*/

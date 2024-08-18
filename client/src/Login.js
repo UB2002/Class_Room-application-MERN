@@ -1,63 +1,45 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Container, CssBaseline, Typography, Button, TextField } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-    const [email, setEmail] = useState('');
+function Login() {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();  // useNavigate instead of useHistory
+    const navigate = useNavigate();
 
-    const handleLogin = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         try {
-            const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { email, password });
-            localStorage.setItem('token', response.data.token);
-            setError(null);
-            navigate('/dashboard'); // Redirect to the dashboard page after successful login
+            const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { username, password });
+            if (response.data.success) {
+                const token = response.data.token;
+                const { role } = JSON.parse(atob(token.split('.')[1])); // Decode token payload
+                localStorage.setItem('token', token);
+                localStorage.setItem('role', role);
+                navigate('/dashboard');
+            } else {
+                alert('Login failed');
+            }
         } catch (error) {
-            console.error('Login error', error);
-            setError('Invalid credentials');
+            console.error('Error logging in', error);
+            alert('An error occurred. Please try again.');
         }
     };
 
     return (
-        <Container component="main" maxWidth="xs">
-            <CssBaseline />
-            <Typography variant="h5" align="center">Login</Typography>
-            <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Email Address"
-                autoComplete="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                label="Password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                onClick={handleLogin}
-            >
-                Login
-            </Button>
-            {error && <Typography color="error" align="center">{error}</Typography>}
-        </Container>
+        <form onSubmit={handleSubmit}>
+            <h2>Login</h2>
+            <div>
+                <label>Username</label>
+                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            </div>
+            <div>
+                <label>Password</label>
+                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+            <button type="submit">Login</button>
+        </form>
     );
-};
+}
 
 export default Login;
