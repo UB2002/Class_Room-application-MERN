@@ -93,7 +93,7 @@ function PrincipalDashboard() {
                 onClick={fetchClassroom}
                 fullWidth
             >
-                Fetch details classroom
+                Fetch all classroom
             </Button>
         </Container>
     );
