@@ -12,10 +12,7 @@ function Login() {
         try {
             const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { username, password });
             if (response.data.success) {
-                const token = response.data.token;
-                const { role } = JSON.parse(atob(token.split('.')[1])); // Decode token payload
-                localStorage.setItem('token', token);
-                localStorage.setItem('role', role);
+                localStorage.setItem('token', response.data.token);
                 navigate('/dashboard');
             } else {
                 alert('Login failed');
