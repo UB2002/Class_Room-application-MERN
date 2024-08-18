@@ -33,6 +33,7 @@ router.post('/login', async (req, res) => {
     }
      
    // res.send('Logged in ')
+
     const token = jwt.sign({ userId: user._id, role: user.role }, secret, { expiresIn: '1h' });
     res.json({ token });
 });
@@ -56,6 +57,54 @@ router.post('/classrooms', authenticateJWT, async (req, res) => {
     
     const classroom = await Classroom.create(req.body);
     res.json(classroom);
+});
+
+router.get('/classrooms', authenticateJWT, async (req, res) => {
+    try {
+        // Ensure that the user is either a Principal or a Teacher
+        if (req.user.role !== 'Principal' && req.user.role !== 'Teacher') {
+            return res.sendStatus(403); // Forbidden
+        }
+
+        // Fetch all classrooms from the database
+        const classrooms = await Classroom.find();
+        
+        // Return the list of classrooms
+        res.json(classrooms);
+    } catch (error) {
+        console.error('Error fetching classrooms:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.post('/classroom/:id/timetable', authenticateJWT, async (req, res) => {
+    try {
+        // Check if the user is either a Principal or a Teacher
+        if (req.user.role !== 'Principal' && req.user.role !== 'Teacher') {
+            return res.sendStatus(403); // Forbidden
+        }
+
+        const classroom = await Classroom.findOne({ roomno: req.params.id });
+        if (!classroom) {
+            return res.status(404).json({ error: 'Classroom not found' });
+        }
+
+        // Create a new timetable entry
+        const timetable = new Timetable({
+            ...req.body,
+            classroom: classroom.roomno // Assign the classroom's ObjectId
+        });
+
+        // Save the timetable to the database
+        await timetable.save();
+
+        // Return the created timetable
+        return res.status(201).json(timetable);
+    } catch (error) {
+        console.error('Error creating timetable:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 // Assign Teacher to Classroom
@@ -104,7 +153,6 @@ router.put('/classrooms/:classroomId/assign-student', authenticateJWT, async (re
 });
 
 // Get Students for Teacher
-// Get Students for Teacher
 router.get('/classrooms/:id/students', authenticateJWT, async (req, res) => {
     try {
         // Ensure that the user is a teacher
@@ -135,5 +183,9 @@ router.get('/classrooms/:id/students', authenticateJWT, async (req, res) => {
     }
 });
 
+
+router.get('students/timetable', authenticateJWT, async(req,res)=> {
+
+});
 
 module.exports = router;
