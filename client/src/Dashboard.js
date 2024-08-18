@@ -6,10 +6,13 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
     const navigate = useNavigate(); // useNavigate instead of useHistory
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('role');
+
         navigate('/login'); // Redirect to login after logout
     };
 
@@ -17,6 +20,7 @@ const Dashboard = () => {
         <Container component="main" maxWidth="sm">
             <CssBaseline />
             <Typography variant="h5" align="center">Dashboard</Typography>
+            <Typography variant="h5" align="center">role : {role} </Typography>
             <Paper elevation={3} style={{ padding: '16px', marginTop: '16px' }}>
                 <Typography variant="h6">Welcome!</Typography>
                 <Typography variant="body1">Your token is:</Typography>

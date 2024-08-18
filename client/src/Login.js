@@ -1,42 +1,66 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Container, CssBaseline, Typography, Button, TextField } from '@mui/material';
+import axios from 'axios';
 
-function Login() {
-    const [username, setUsername] = useState('');
+const Login = () => {
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigate = useNavigate();
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();  // useNavigate instead of useHistory
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleLogin = async () => {
         try {
-            const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { username, password });
-            if (response.data.success) {
-                localStorage.setItem('token', response.data.token);
-                navigate('/dashboard');
-            } else {
-                alert('Login failed');
-            }
+            const response = await axios.post('https://class-room-application-mern.onrender.com/api/login', { email, password });
+            const { role } = JSON.parse(atob(response.data.token.split('.')[1]));
+            console.log(role);
+            localStorage.setItem('role', role);
+            localStorage.setItem('token', response.data.token);
+            setError(null);
+            navigate('/dashboard'); // Redirect to the dashboard page after successful login
         } catch (error) {
-            console.error('Error logging in', error);
-            alert('An error occurred. Please try again.');
+            console.error('Login error', error);
+            setError('Invalid credentials');
         }
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
-            <div>
-                <label>Username</label>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
-            </div>
-            <div>
-                <label>Password</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-            </div>
-            <button type="submit">Login</button>
-        </form>
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Typography variant="h5" align="center">Login</Typography>
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Email Address"
+                autoComplete="email"
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                label="Password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handleLogin}
+            >
+                Login
+            </Button>
+            {error && <Typography color="error" align="center">{error}</Typography>}
+        </Container>
     );
-}
+};
 
 export default Login;
